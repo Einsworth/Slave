@@ -15,3 +15,9 @@ Nov 1, 2021
   - Can create deck with 52 cards
   - Deck can deal 13 cards to each players
   - Can show a card in the screen (just one for now)
+
+Nov 6, 2021
+  - Can deal card to each player correctly (there is a bug that only deal 11 cards to each player)
+  - Can sort each player's hand
+  - Can show cards in entirely hand (just for Player 1)
+  - Add a lot of code comment (every function except class setting)
