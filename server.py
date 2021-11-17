@@ -23,6 +23,7 @@ playerCount = 0
 def threadCilent(conn, player, gameId):
     global playerCount
     conn.send(str.encode(str(player)))
+    #print("Hello : ", player, gameId)
 
     #reply = ""
     while True:
@@ -69,7 +70,7 @@ while True:
         games[gameId] = Game(gameId)
         player = 1
         print("Creating a new gameID: ", gameId)
-    
+
     #if it's fourth player then ready to start the game
     elif playerCount % 4 == 0:
         games[gameId].ready = True
@@ -77,8 +78,10 @@ while True:
         player = 4
         print("Starting gameID: ", gameId)
 
-    #if it's two - three
+    #if it's second or third player
     else:
         player = playerCount % 4
+
+    #games[gameId].players.append(player)
 
     start_new_thread(threadCilent, (conn, player, gameId))

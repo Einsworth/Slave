@@ -70,3 +70,16 @@ def dealCards(game):
     while deck:                     #each player draw card until deck is empty
         game.drow(deck)
     game.sortHand()                 #sort hand for each player
+
+#find position of each player
+def findPos(player):
+        if player == 1:
+            return [1, 2, 3, 4]
+        elif player == 2:
+            return [2, 3, 4, 1]
+        elif player == 3:
+            return [3, 4, 1, 2]
+        elif player == 4:
+            return [4, 1, 2, 3]
+        print("Can't find player: ", player)
+        return None

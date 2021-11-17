@@ -37,3 +37,7 @@ Nov 16, 2021
   - Server can support unlimited player (but up to my labtop ;w;)
   - Server can deal card to each player in game correctly
   - Change player.py script to game.py (include all class)
+
+Nov 17, 2021
+  - Show position of each player in each client correctly
+  - Can show player's name (which is currently player number) and number of cards in each player's hand

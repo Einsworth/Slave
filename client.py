@@ -2,6 +2,7 @@
 import pygame
 from network import Network
 from interface import redrawWindow
+from game import findPos
 
 pygame.init()
 
@@ -23,6 +24,7 @@ def main():
     n = Network()                   #connect to server
     player = int(n.getPlayer())
     print("You are player: ", player)
+    pos = findPos(player)
 
     #start the game
     while running:
@@ -41,6 +43,6 @@ def main():
                 running = False
                 pygame.quit()
 
-        redrawWindow(game, player, screen)
+        redrawWindow(game, player, pos, screen)
 
 main()
