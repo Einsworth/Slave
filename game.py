@@ -12,6 +12,7 @@ class Game:
         self.p2hand = []
         self.p3hand = []
         self.p4hand = []
+        self.buttons = [Button("Play", "play", 1020, 470), Button("Pass", "pass", 1150, 470)]
 
     def drow(self, deck):
         self.p1hand.append(deck.deal())
@@ -36,6 +37,18 @@ class Game:
             return self.p4hand
         print("Can't find player: ", player)
         return None
+
+    def findFirstPlayer(self):
+        if self.p1hand[0].rank == 1:
+            self.turn = 1
+        elif self.p2hand[0].rank == 1:
+            self.turn = 2
+        elif self.p3hand[0].rank == 1:
+            self.turn = 3
+        elif self.p4hand[0].rank == 1:
+            self.turn = 4
+        else:
+            print("Can't find three of clubs.")
 
 class Card( object ):
     def __init__(self, value, suit, rank):
@@ -63,6 +76,23 @@ class Deck( list ):
     def deal(self):
         return self.pop()
 
+class Button:
+    def __init__(self, name, text, x, y):
+        self.name = name
+        self.text = text
+        self.x = x
+        self.y = y
+        self.width = 116
+        self.height = 50
+
+    def click(self, pos):
+        xclick = pos[0]
+        yclick = pos[1]
+        if self.x <= xclick <= self.x + self.width and self.y <= yclick <= self.y + self.height:
+            return True
+        else:
+            return False
+
 #deal cards to each player (13 cards for each player)
 def dealCards(game):
     deck = Deck()                   #generate deck (52 cards)
@@ -70,6 +100,7 @@ def dealCards(game):
     while deck:                     #each player draw card until deck is empty
         game.drow(deck)
     game.sortHand()                 #sort hand for each player
+    game.findFirstPlayer()          #find first player turn
 
 #find position of each player
 def findPos(player):

@@ -38,6 +38,12 @@ def threadCilent(conn, player, gameId):
 
                 else:
 
+                    if data == "play":
+                        print("data = play, from player: ", player)
+
+                    if data == "pass":
+                        print("data = pass, from player: ", player)
+
                     conn.sendall(pickle.dumps(game))
 
             else:

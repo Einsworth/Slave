@@ -39,5 +39,11 @@ Nov 16, 2021
   - Change player.py script to game.py (include all class)
 
 Nov 17, 2021
-  - Show position of each player in each client correctly
-  - Can show player's name (which is currently player number) and number of cards in each player's hand
+  - Can show position of each player in each client correctly
+  - Can show player's name (which is currently player number)
+  - Can show a number of remaining cards in each player's hand
+
+Nov 20, 2021
+  - Can show which player's turn currently
+  - Can show the "Play" and "Pass" button in the screen when you take a turn
+  - Can send data correctly when clicking the button
