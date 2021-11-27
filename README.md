@@ -47,3 +47,11 @@ Nov 20, 2021
   - Can show which player's turn currently
   - Can show the "Play" and "Pass" button in the screen when you take a turn
   - Can send data correctly when clicking the button
+
+Nov 27, 2021
+  - Working on take a turn function (not complete yet)
+  - Can choose cards to play by the rules correctly
+  - Can show which cards you choose to play
+  - Can show current cards in play
+  - Turn system work just fine (there is a bug that after turn of player 4 it go to turn of player 8)
+  - Make all data transfer between network and server become "pickle"

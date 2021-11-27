@@ -2,17 +2,18 @@ import random
 
 class Game:
     def __init__(self, id):
+        self.id = id
+        self.players = []
+        self.ready = False
         self.turn = 0
         self.loop = 0
-        self.ready = False
-        self.id = id
-        self.win = [0, 0, 0, 0]
-        self.players = []
+        self.numpass = 0
+        self.currentCard = []
         self.p1hand = []
         self.p2hand = []
         self.p3hand = []
         self.p4hand = []
-        self.buttons = [Button("Play", "play", 1020, 470), Button("Pass", "pass", 1150, 470)]
+        self.win = [0, 0, 0, 0]
 
     def drow(self, deck):
         self.p1hand.append(deck.deal())
@@ -50,17 +51,46 @@ class Game:
         else:
             print("Can't find three of clubs.")
 
+    def updateTurn(self, play, player):
+        if play:
+            self.currentCard = play
+        else:
+            self.numpass += 1
+            if self.numpass == 3:
+                self.currentCard = []
+                self.numpass = 0
+        if self.loop == 0:
+            self.turn = player + 1
+            print(player)
+            if player == 4:
+                print("previous player : ", player)
+                print("previous turn : ", self.turn)
+                self.turn = 1
+        else:
+            self.turn = player - 1
+            print(player)
+            if player == 1:
+                print("previous turn : ", self.turn)
+                self.turn = 4
+        print("current turn : ", self.turn)
+
 class Card( object ):
     def __init__(self, value, suit, rank):
         self.value = value
         self.suit = suit
         self.rank = rank
+        self.width = 125
+        self.height = 180
+        self.rect = None
 
     def __repr__(self):
         return str(self.value) + " of " + str(self.suit)
 
     def __lt__(self, other):
         return self.rank < other.rank
+
+    def __eq__(self, other):
+        return self.rank == other.rank
 
 class Deck( list ):
     def __init__(self):
@@ -75,23 +105,6 @@ class Deck( list ):
 
     def deal(self):
         return self.pop()
-
-class Button:
-    def __init__(self, name, text, x, y):
-        self.name = name
-        self.text = text
-        self.x = x
-        self.y = y
-        self.width = 116
-        self.height = 50
-
-    def click(self, pos):
-        xclick = pos[0]
-        yclick = pos[1]
-        if self.x <= xclick <= self.x + self.width and self.y <= yclick <= self.y + self.height:
-            return True
-        else:
-            return False
 
 #deal cards to each player (13 cards for each player)
 def dealCards(game):

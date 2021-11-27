@@ -4,7 +4,7 @@ import pickle
 from _thread import *
 from game import Game, dealCards
 
-server = "192.168.1.102"
+server = "192.168.1.101"
 port = 5555
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -28,7 +28,7 @@ def threadCilent(conn, player, gameId):
     #reply = ""
     while True:
         try:
-            data = conn.recv(2048).decode()
+            data = pickle.loads(conn.recv(2048))
 
             if gameId in games:
                 game = games[gameId]
@@ -37,12 +37,17 @@ def threadCilent(conn, player, gameId):
                     break
 
                 else:
-
-                    if data == "play":
-                        print("data = play, from player: ", player)
-
+                    
                     if data == "pass":
-                        print("data = pass, from player: ", player)
+                        print(data)
+                        game.updateTurn([], player)
+                        print("data : ", data)
+                        print("from player : ", player)
+                    elif data != "get":
+                        print(data)
+                        game.updateTurn(data, player)
+                        print("data : ", data)
+                        print("from player : ", player)
 
                     conn.sendall(pickle.dumps(game))
 

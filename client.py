@@ -1,19 +1,89 @@
 #---------- import setting ----------#
 import pygame
 from network import Network
-from interface import image, redrawWindow
+from interface import redrawWindow
 from game import findPos
 
 pygame.init()
 
-#---------- screen & window setting ----------#
+#---------- class setting ----------#
 
-width = 1280                                        #set width resolution
-height = 720                                        #set height resolution
+class Button:
+    def __init__(self, name, x, y):
+        self.name = name
+        self.x = x
+        self.y = y
+        self.width = 116
+        self.height = 50
+        self.rect = pygame.Rect(x, y, self.width, self.height)
+
+#---------- game setting ----------#
+
+width = 1280                                                    #set width resolution
+height = 720                                                    #set height resolution
 screen = pygame.display.set_mode((width, height))
-pygame.display.set_caption("Slave")                 #set window caption
-icon = pygame.image.load('pictures/Icon.png')       #set icon
+pygame.display.set_caption("Slave")                             #set window caption
+icon = pygame.image.load('pictures/Icon.png').convert_alpha()   #set icon
 pygame.display.set_icon(icon)
+buttons = [Button("Play", 1020, 370), Button("Pass", 1150, 370)]
+
+#---------- other function ----------#
+
+#update our hand and make new rect for each card
+def updateHand(game, player):
+    hand = game.findPlayerHand(player)
+    for index in range(len(hand)):
+        #check if it's last card then it get full rect
+        if index == len(hand) - 1:
+            hand[index].rect = pygame.Rect(90*(index), 540, hand[index].width, hand[index].height)
+        #if it's not last card then it get overlapping rect
+        else:
+            hand[index].rect = pygame.Rect(90*(index), 540, hand[index].width - 35, hand[index].height)
+    return hand
+
+#pick or remove a card to play
+def pickACard(card, chosenCard):
+    pick = len(chosenCard)
+    #check if you already choose it, if yes remove it
+    if card in chosenCard:
+        chosenCard.pop(chosenCard.index(card))
+    #if you not choose card yet then add it
+    elif pick == 0:
+        print("Select card : ", card)
+        chosenCard.append(card)
+    #if you already choose a card (or more), that card you choose must have same value as previous one
+    elif 1 <= pick <= 3:
+        if card.value == max(chosenCard).value:
+            print("Select card : ", card)
+            chosenCard.append(card)
+        else:
+            print("You must pick card with same value!")
+    #if not do nothing
+    else:
+        print("You can't choose it!")
+
+#check if you can play your card that you choose
+def checkPlay(game, chosenCard):
+    type = len(game.currentCard)    #tpye of card in play (single, pair, triple, fourth)
+    play = len(chosenCard)          #number of card you play
+    #check if you are not the first player of turn but you click play without choosing card!?
+    if play == 0:
+        print("Please choose your card first!")
+        return False
+    #check if you are the first player of turn
+    elif type == 0:
+        print("You are the first one!!!")
+        return True
+    #if you play the same type, you must play bigger card than the current one
+    elif type == play:
+        return max(chosenCard) > max(game.currentCard)
+    #if you play triple into single or fourth into pair, you win! 
+    elif play - type == 2:
+        return True
+    #if not you can't play!
+    else:
+        print("You can't play!!!")
+        return False
 
 #---------- main game function ----------#
 
@@ -26,6 +96,7 @@ def main():
     player = int(n.getPlayer())
     print("You are player: ", player)
     playerPos = findPos(player)
+    chosenCard = []
 
     #start the game
     while running:
@@ -38,6 +109,8 @@ def main():
             print("Couldn't get into server...")
             break
 
+        redrawWindow(game, player, playerPos, chosenCard, buttons, screen)
+
         for event in pygame.event.get():
 
             #check if you quit the game
@@ -47,12 +120,30 @@ def main():
 
             #check if it's your turn then take a turn
             if player == game.turn:
+                hand = updateHand(game, player)
+
+                #check if you click mouse
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     pos = pygame.mouse.get_pos()
-                    for button in game.buttons:
-                        if button.click(pos):
-                            n.send(button.text)
 
-        redrawWindow(game, player, playerPos, screen)
+                    #check if you click button
+                    for button in buttons:
+                        if button.rect.collidepoint(pos):
+                            print("Button : ", button.name)
+                            if button.name == "Play":
+                                if checkPlay(game, chosenCard):
+                                    print(chosenCard)
+                                    game = n.send(chosenCard)
+                                else:
+                                    print("can't play!!!")
+                            elif button.name == "Pass":
+                                game = n.send("pass")
+
+                    #check if you click card
+                    for card in hand:
+                        if card.rect.collidepoint(pos):
+                            print("Card : ", card)
+                            pickACard(card, chosenCard)
+                            print("Chosen card : ", chosenCard)
 
 main()
