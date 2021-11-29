@@ -24,39 +24,39 @@ def showHand(game, player, chosenCard, screen):
             screen.blit(pygame.transform.scale(image("Arrow", "object"), (100, 100)), (90*(index), 440))
     if player == 1:
         screen.blit(text(len(game.p1hand)), (140, 370))
-        screen.blit(text(len(game.p2hand)), (1140, 70))
-        screen.blit(text(len(game.p3hand)), (640, 70))
-        screen.blit(text(len(game.p4hand)), (140, 70))
+        screen.blit(text(len(game.p2hand)), (1140, 90))
+        screen.blit(text(len(game.p3hand)), (640, 90))
+        screen.blit(text(len(game.p4hand)), (140, 90))
     elif player == 2:
         screen.blit(text(len(game.p2hand)), (140, 370))
-        screen.blit(text(len(game.p3hand)), (1140, 70))
-        screen.blit(text(len(game.p4hand)), (640, 70))
-        screen.blit(text(len(game.p1hand)), (140, 70))
+        screen.blit(text(len(game.p3hand)), (1140, 90))
+        screen.blit(text(len(game.p4hand)), (640, 90))
+        screen.blit(text(len(game.p1hand)), (140, 90))
     elif player == 3:
         screen.blit(text(len(game.p3hand)), (140, 370))
-        screen.blit(text(len(game.p4hand)), (1140, 70))
-        screen.blit(text(len(game.p1hand)), (640, 70))
-        screen.blit(text(len(game.p2hand)), (140, 70))
+        screen.blit(text(len(game.p4hand)), (1140, 90))
+        screen.blit(text(len(game.p1hand)), (640, 90))
+        screen.blit(text(len(game.p2hand)), (140, 90))
     elif player == 4:
         screen.blit(text(len(game.p4hand)), (140, 370))
-        screen.blit(text(len(game.p1hand)), (1140, 70))
-        screen.blit(text(len(game.p2hand)), (640, 70))
-        screen.blit(text(len(game.p3hand)), (140, 70))
+        screen.blit(text(len(game.p1hand)), (1140, 90))
+        screen.blit(text(len(game.p2hand)), (640, 90))
+        screen.blit(text(len(game.p3hand)), (140, 90))
 
 #show icon and name in position of each player
 def showPos(loop, screen):
     screen.blit(pygame.transform.scale(image("Player", "object"), (100, 100)), (20, 320))
     screen.blit(pygame.transform.scale(image("Hand", "object"), (50, 50)), (180, 370))
     screen.blit(text(loop[0]), (140, 320))
-    screen.blit(pygame.transform.scale(image("Player", "object"), (100, 100)), (1020, 20))
-    screen.blit(pygame.transform.scale(image("Hand", "object"), (50, 50)), (1180, 70))
-    screen.blit(text(loop[1]), (1140, 20))
-    screen.blit(pygame.transform.scale(image("Player", "object"), (100, 100)), (520, 20))
-    screen.blit(pygame.transform.scale(image("Hand", "object"), (50, 50)), (680, 70))
-    screen.blit(text(loop[2]), (640, 20))
-    screen.blit(pygame.transform.scale(image("Player", "object"), (100, 100)), (20, 20))
-    screen.blit(pygame.transform.scale(image("Hand", "object"), (50, 50)), (180, 70))
-    screen.blit(text(loop[3]), (140, 20))
+    screen.blit(pygame.transform.scale(image("Player", "object"), (100, 100)), (1020, 40))
+    screen.blit(pygame.transform.scale(image("Hand", "object"), (50, 50)), (1180, 90))
+    screen.blit(text(loop[1]), (1140, 40))
+    screen.blit(pygame.transform.scale(image("Player", "object"), (100, 100)), (520, 40))
+    screen.blit(pygame.transform.scale(image("Hand", "object"), (50, 50)), (680, 90))
+    screen.blit(text(loop[2]), (640, 40))
+    screen.blit(pygame.transform.scale(image("Player", "object"), (100, 100)), (20, 40))
+    screen.blit(pygame.transform.scale(image("Hand", "object"), (50, 50)), (180, 90))
+    screen.blit(text(loop[3]), (140, 40))
 
 #show the current direction of turn
 def showLoop(game, screen):
@@ -78,6 +78,19 @@ def showCurrentCard(game, screen):
     for index in range(len(cards)):
         screen.blit(pygame.transform.scale(image(cards[index], "card"), (cards[index].width, cards[index].height)), (520 + 90*(index), 240))
 
+def showRole(game, loop, screen):
+    role = ["King", "Queen", "People", "Slave"]
+    for index in range(len(game.win1)):
+        pos = loop.index(game.win1[index]) 
+        if pos == 0:
+            screen.blit(pygame.transform.scale(image(role[index], "object"), (50, 50)), (45, 290))
+        elif pos == 1:
+            screen.blit(pygame.transform.scale(image(role[index], "object"), (50, 50)), (1045, 10))
+        elif pos == 2:
+            screen.blit(pygame.transform.scale(image(role[index], "object"), (50, 50)), (545, 10))
+        elif pos == 3:
+            screen.blit(pygame.transform.scale(image(role[index], "object"), (50, 50)), (45, 10))
+
 #use for redrawing window every frame
 def redrawWindow(game, player, loop, chosenCard, buttons, screen):
     screen.fill((0, 100, 0))                    #fill background with green
@@ -86,4 +99,5 @@ def redrawWindow(game, player, loop, chosenCard, buttons, screen):
     showLoop(game, screen)
     showTurn(game, player, buttons, screen)
     showCurrentCard(game, screen)
+    showRole(game, loop, screen)
     pygame.display.update()                     #update screen

@@ -5,15 +5,19 @@ class Game:
         self.id = id
         self.players = []
         self.ready = False
+        self.first = True
         self.turn = 0
         self.loop = 0
-        self.numpass = 0
         self.currentCard = []
         self.p1hand = []
         self.p2hand = []
         self.p3hand = []
         self.p4hand = []
-        self.win = [0, 0, 0, 0]
+        self.inplay = [1, 2, 3, 4]
+        self.inround = [1, 2, 3, 4]
+        self.keepLoop = False
+        self.win1 = []
+        self.win2 = []
 
     def drow(self, deck):
         self.p1hand.append(deck.deal())
@@ -51,28 +55,91 @@ class Game:
         else:
             print("Can't find three of clubs.")
 
-    def updateTurn(self, play, player):
-        if play:
-            self.currentCard = play
+    def updateTurn(self, playCard, player):
+        self.moveTurn(player)
+
+        #reset flag if it the first turn of the game (in the first turn of the game player must play Three of Clubs)
+        if self.first:
+            self.first = False
+
+        #if player play card
+        if playCard:
+            #move card from player hand to current playing card
+            for card in playCard:
+                self.findPlayerHand(player).remove(card)
+            self.currentCard = playCard
+            #if player play after another player win, set keepLoop to False (means not reverse loop)
+            if self.keepLoop:
+                self.keepLoop = False
+                #if that player is the last one inplay, reset current playing card and player inplay
+                if len(self.inplay) == 1:
+                    self.currentCard.clear()
+                    self.inplay = self.inround.copy()
+            self.checkWin(player)                       #check if the player win this turn
+
+        #if player pass
         else:
-            self.numpass += 1
-            if self.numpass == 3:
-                self.currentCard = []
-                self.numpass = 0
+            self.inplay.remove(player)                  #remove that player from inplay
+            #check if player pass after another player win
+            if self.keepLoop:
+                #if all players pass after another player win, reverse loop
+                if len(self.inplay) == 0:
+                    if self.loop == 0:
+                        self.loop = 1
+                    else:
+                        self.loop = 0
+                    self.keepLoop = False               #set keepLoop to False again
+                    self.currentCard.clear()            #clear current card in play
+                    self.inplay = self.inround.copy()   #reset player inplay
+                    self.moveTurn(player)
+                    print("Reverse loop to: ", self.loop)
+
+            #if player pass normally
+            else:
+                #if there is only one play inplay left
+                if len(self.inplay) == 1:
+                    self.turn = self.inplay[0]    #make him plays first next turn
+                    self.currentCard.clear()            #clear current card in play
+                    self.inplay = self.inround.copy()   #reset player inplay
+
+        print("Keep loop: ", self.keepLoop)
+        print("Current turn: ", self.turn)
+        print("Remaining player in play: ", self.inplay)
+        print("Remaining player in round: ", self.inround)
+
+    def moveTurn(self, player):
+        turn = self.inplay.index(player)
+        #check loop (0 means anti-clockwise, 1 means clockwise)
         if self.loop == 0:
-            self.turn = player + 1
-            print(player)
-            if player == 4:
-                print("previous player : ", player)
-                print("previous turn : ", self.turn)
-                self.turn = 1
+            #move to the right player, but if you are the last player, move to the first player instead
+            if player == self.inplay[-1]:
+                self.turn = self.inplay[0]
+            else:
+                self.turn = self.inplay[turn + 1]
         else:
-            self.turn = player - 1
-            print(player)
-            if player == 1:
-                print("previous turn : ", self.turn)
-                self.turn = 4
-        print("current turn : ", self.turn)
+            #move to the left player, but if you are the first player, move to the last player instead
+            if player == self.inplay[0]:
+                self.turn = self.inplay[-1]
+            else:
+                self.turn = self.inplay[turn - 1]
+
+    def checkWin(self, player):
+        if not self.findPlayerHand(player):
+            self.inplay.remove(player)
+            self.inround.remove(player)
+            self.win1.append(player)
+            if len(self.inround) == 1:
+                self.win1.append(self.inround[0])
+                self.findPlayerHand(self.inround[0]).clear()
+                self.currentCard.clear()
+                self.startNewRound()
+            else:
+                self.keepLoop = True
+
+    def startNewRound(self):
+        print("Round 1 score: ", self.win1)
+        print("Start new round!!!")
+        dealCards(self)
 
 class Card( object ):
     def __init__(self, value, suit, rank):
@@ -90,7 +157,11 @@ class Card( object ):
         return self.rank < other.rank
 
     def __eq__(self, other):
-        return self.rank == other.rank
+        if not isinstance(other, Card):
+            return False
+        if self.rank != other.rank:
+            return False
+        return True
 
 class Deck( list ):
     def __init__(self):

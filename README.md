@@ -55,3 +55,12 @@ Nov 27, 2021
   - Can show current cards in play
   - Turn system work just fine (there is a bug that after turn of player 4 it go to turn of player 8)
   - Make all data transfer between network and server become "pickle"
+
+Nov 30, 2021
+  - Working on second round and end game!
+  - Can play first round without a bug (as far as I test it now)
+  - Can show role correctly
+  - Can reverse loop of turn correctly
+  - Improve pick a card function
+  - Adjust in game interface a little bit
+  - Fix a lot of minor bug

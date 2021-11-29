@@ -4,7 +4,7 @@ import pickle
 from _thread import *
 from game import Game, dealCards
 
-server = "192.168.1.101"
+server = "192.168.1.103"
 port = 5555
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -37,17 +37,15 @@ def threadCilent(conn, player, gameId):
                     break
 
                 else:
-                    
+
                     if data == "pass":
-                        print(data)
+                        print("Data: ", data)
+                        print("From player: ", player)
                         game.updateTurn([], player)
-                        print("data : ", data)
-                        print("from player : ", player)
                     elif data != "get":
-                        print(data)
+                        print("Data: ", data)
+                        print("From player: ", player)
                         game.updateTurn(data, player)
-                        print("data : ", data)
-                        print("from player : ", player)
 
                     conn.sendall(pickle.dumps(game))
 

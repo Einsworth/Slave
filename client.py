@@ -44,39 +44,49 @@ def updateHand(game, player):
 #pick or remove a card to play
 def pickACard(card, chosenCard):
     pick = len(chosenCard)
-    #check if you already choose it, if yes remove it
+    #if you already choose it, remove it
     if card in chosenCard:
-        chosenCard.pop(chosenCard.index(card))
-    #if you not choose card yet then add it
+        chosenCard.remove(card)
+    #if you not choose card yet, add it
     elif pick == 0:
-        print("Select card : ", card)
+        print("Select card: ", card)
         chosenCard.append(card)
-    #if you already choose a card (or more), that card you choose must have same value as previous one
+    #if you already choose a card (or more)
     elif 1 <= pick <= 3:
-        if card.value == max(chosenCard).value:
+        #that card you choose must have same value as previous one
+        if card.value == chosenCard[-1].value:
             print("Select card : ", card)
             chosenCard.append(card)
+        #else remove previous cards and add a new one
         else:
-            print("You must pick card with same value!")
-    #if not do nothing
+            chosenCard.clear()
+            chosenCard.append(card)
+            print("You pick a new card")
+    #if not, do nothing
     else:
         print("You can't choose it!")
+    chosenCard.sort()
 
 #check if you can play your card that you choose
 def checkPlay(game, chosenCard):
-    type = len(game.currentCard)    #tpye of card in play (single, pair, triple, fourth)
+    type = len(game.currentCard)    #tpye of card in play (none, single, pair, triple, fourth)
     play = len(chosenCard)          #number of card you play
-    #check if you are not the first player of turn but you click play without choosing card!?
+    #if you are the first player of the game, you must play Three of Clubs (can be any type)
+    if game.first:
+        if chosenCard[0].rank == 1:
+            return True
+        return False
+    #if you are not the first player of turn but you click play without choosing card, return False
     if play == 0:
         print("Please choose your card first!")
         return False
-    #check if you are the first player of turn
+    #if you are the first player of turn, you can play any card
     elif type == 0:
         print("You are the first one!!!")
         return True
     #if you play the same type, you must play bigger card than the current one
     elif type == play:
-        return max(chosenCard) > max(game.currentCard)
+        return chosenCard[-1] > game.currentCard[-1]
     #if you play triple into single or fourth into pair, you win! 
     elif play - type == 2:
         return True
@@ -84,6 +94,15 @@ def checkPlay(game, chosenCard):
     else:
         print("You can't play!!!")
         return False
+
+#check if you can pass
+def checkPass(game):
+    #if there are no cards in play, you can't pass
+    if not game.currentCard:
+        print("can't pass!!!")
+        return False
+    #if yes you can pass
+    return True
 
 #---------- main game function ----------#
 
@@ -126,24 +145,27 @@ def main():
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     pos = pygame.mouse.get_pos()
 
-                    #check if you click button
+                    #check what button you click
                     for button in buttons:
                         if button.rect.collidepoint(pos):
-                            print("Button : ", button.name)
+                            print("Button: ", button.name)
                             if button.name == "Play":
                                 if checkPlay(game, chosenCard):
-                                    print(chosenCard)
+                                    print("Chosen cards: ",chosenCard)
                                     game = n.send(chosenCard)
+                                    chosenCard.clear()
                                 else:
                                     print("can't play!!!")
                             elif button.name == "Pass":
-                                game = n.send("pass")
+                                if checkPass(game):
+                                    game = n.send("pass")
+                                    chosenCard.clear()
 
-                    #check if you click card
+                    #check what card you click
                     for card in hand:
                         if card.rect.collidepoint(pos):
-                            print("Card : ", card)
+                            print("Card: ", card)
                             pickACard(card, chosenCard)
-                            print("Chosen card : ", chosenCard)
+                            print("Chosen card: ", chosenCard)
 
 main()
