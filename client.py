@@ -25,7 +25,7 @@ screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Slave")                             #set window caption
 icon = pygame.image.load('pictures/Icon.png').convert_alpha()   #set icon
 pygame.display.set_icon(icon)
-buttons = [Button("Play", 1020, 370), Button("Pass", 1150, 370)]
+buttons = [Button("Play", 1020, 370), Button("Pass", 1150, 370), Button("Send", 1150, 370)]
 
 #---------- other function ----------#
 
@@ -42,7 +42,7 @@ def updateHand(game, player):
     return hand
 
 #pick or remove a card to play
-def pickACard(card, chosenCard):
+def pickACard(game, card, chosenCard):
     pick = len(chosenCard)
     #if you already choose it, remove it
     if card in chosenCard:
@@ -51,7 +51,19 @@ def pickACard(card, chosenCard):
     elif pick == 0:
         print("Select card: ", card)
         chosenCard.append(card)
-    #if you already choose a card (or more)
+    #if in game state 2 where King has to send 2 cards, you can not choose more than 2 cards
+    elif game.state == 2:
+        if pick == 1:
+            print("Select card: ", card)
+            chosenCard.append(card)
+        else:
+            print("You can't pick anymore card!")
+    #if in game state 3 where Queen has to send 1 card, you can not choose more than 1 cards
+    elif game.state == 3:
+        chosenCard.clear()
+        chosenCard.append(card)
+        print("You pick a new card")
+    #if in other game state and you already choose a card (or more)
     elif 1 <= pick <= 3:
         #that card you choose must have same value as previous one
         if card.value == chosenCard[-1].value:
@@ -71,14 +83,14 @@ def pickACard(card, chosenCard):
 def checkPlay(game, chosenCard):
     type = len(game.currentCard)    #tpye of card in play (none, single, pair, triple, fourth)
     play = len(chosenCard)          #number of card you play
-    #if you are the first player of the game, you must play Three of Clubs (can be any type)
-    if game.first:
-        if chosenCard[0].rank == 1:
-            return True
-        return False
-    #if you are not the first player of turn but you click play without choosing card, return False
+    #if you click play without choosing card, return False
     if play == 0:
         print("Please choose your card first!")
+        return False
+    #if you are the first player of the game, you must play Three of Clubs (can be any type)
+    elif game.first:
+        if chosenCard[0].rank == 1:
+            return True
         return False
     #if you are the first player of turn, you can play any card
     elif type == 0:
@@ -103,6 +115,22 @@ def checkPass(game):
         return False
     #if yes you can pass
     return True
+
+#check if you can send
+def checkSend(game, chosenCard):
+    send = len(chosenCard)
+    print(send)
+    if game.state == 2:
+        if send == 2:
+            if send == 2:
+                return True
+            print("you have to choose 2 cards!")
+            return False
+    elif game.state == 3:
+        if send == 1:
+            return True
+        print("you have to choose 1 card!")
+        return False
 
 #---------- main game function ----------#
 
@@ -145,27 +173,42 @@ def main():
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     pos = pygame.mouse.get_pos()
 
-                    #check what button you click
-                    for button in buttons:
-                        if button.rect.collidepoint(pos):
-                            print("Button: ", button.name)
-                            if button.name == "Play":
-                                if checkPlay(game, chosenCard):
-                                    print("Chosen cards: ",chosenCard)
-                                    game = n.send(chosenCard)
-                                    chosenCard.clear()
-                                else:
-                                    print("can't play!!!")
-                            elif button.name == "Pass":
-                                if checkPass(game):
-                                    game = n.send("pass")
-                                    chosenCard.clear()
+                    #if game prepares to start round 2, you have to send card to other roles instead of playing
+                    if game.state == 2 or game.state == 3:
+                        #if you click send button
+                        if buttons[2].rect.collidepoint(pos):
+                            print("Click send button")
+                            if checkSend(game, chosenCard):
+                                print("Chosen cards: ",chosenCard)
+                                game = n.send(chosenCard)
+                                chosenCard.clear()
+                            else:
+                                print("can't send!!!")
+                    
+                    #if game is in round 1 or 2
+                    else:
+                        #if you click play button
+                        if buttons[0].rect.collidepoint(pos):
+                            print("Click play button")
+                            if checkPlay(game, chosenCard):
+                                print("Chosen cards: ",chosenCard)
+                                game = n.send(chosenCard)
+                                chosenCard.clear()
+                            else:
+                                print("can't play!!!")
+
+                        #if you click pass button
+                        elif buttons[1].rect.collidepoint(pos):
+                            print("Click pass button")
+                            if checkPass(game):
+                                game = n.send("pass")
+                                chosenCard.clear()
 
                     #check what card you click
                     for card in hand:
                         if card.rect.collidepoint(pos):
                             print("Card: ", card)
-                            pickACard(card, chosenCard)
+                            pickACard(game, card, chosenCard)
                             print("Chosen card: ", chosenCard)
 
 main()

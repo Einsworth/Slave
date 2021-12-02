@@ -2,9 +2,9 @@
 import socket
 import pickle
 from _thread import *
-from game import Game, dealCards
+from game import Game
 
-server = "192.168.1.103"
+server = "26.12.84.96"    #enter your IPV4 (it may change everyday but default is "192.168.1.103")
 port = 5555
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -45,7 +45,10 @@ def threadCilent(conn, player, gameId):
                     elif data != "get":
                         print("Data: ", data)
                         print("From player: ", player)
-                        game.updateTurn(data, player)
+                        if game.state == 1 or game.state == 4:
+                            game.updateTurn(data, player)
+                        elif game.state == 2 or game.state == 3:
+                            game.tradeCard(data)
 
                     conn.sendall(pickle.dumps(game))
 
@@ -83,7 +86,7 @@ while True:
     #if it's fourth player then ready to start the game
     elif playerCount % 4 == 0:
         games[gameId].ready = True
-        dealCards(games[gameId])
+        games[gameId].updateState()
         player = 4
         print("Starting gameID: ", gameId)
 

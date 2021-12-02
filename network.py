@@ -4,8 +4,8 @@ import pickle
 class Network:
     def __init__(self):
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server = "192.168.1.103"
-        self.port = 5555
+        self.server = "26.12.84.96"         #server IPV4
+        self.port = 5555                    #server port
         self.addr = (self.server, self.port)
         self.id = self.connect()
 

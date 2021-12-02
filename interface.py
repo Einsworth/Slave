@@ -70,8 +70,11 @@ def showTurn(game, player, buttons, screen):
     turn = str(game.turn) + "'s turn"
     screen.blit(text(turn), (100, 200))
     if player == game.turn:
-        for button in buttons:
-            screen.blit(pygame.transform.scale(image(button.name, "object"), (button.width, button.height)), (button.x, button.y))
+        if game.state == 2 or game.state == 3:
+            screen.blit(pygame.transform.scale(image(buttons[2].name, "object"), (buttons[2].width, buttons[2].height)), (buttons[2].x, buttons[2].y))
+        else:
+            screen.blit(pygame.transform.scale(image(buttons[0].name, "object"), (buttons[0].width, buttons[0].height)), (buttons[0].x, buttons[0].y))
+            screen.blit(pygame.transform.scale(image(buttons[1].name, "object"), (buttons[1].width, buttons[1].height)), (buttons[1].x, buttons[1].y))
 
 def showCurrentCard(game, screen):
     cards = game.currentCard

@@ -64,3 +64,7 @@ Nov 30, 2021
   - Improve pick a card function
   - Adjust in game interface a little bit
   - Fix a lot of minor bug
+
+Dec 2, 2021
+  - Game are now complete, all important feature are working now
+  - Fix a lot of minor bug

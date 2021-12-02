@@ -2,35 +2,131 @@ import random
 
 class Game:
     def __init__(self, id):
-        self.id = id
-        self.players = []
-        self.ready = False
-        self.first = True
-        self.turn = 0
-        self.loop = 0
-        self.currentCard = []
-        self.p1hand = []
-        self.p2hand = []
-        self.p3hand = []
-        self.p4hand = []
-        self.inplay = [1, 2, 3, 4]
-        self.inround = [1, 2, 3, 4]
-        self.keepLoop = False
-        self.win1 = []
-        self.win2 = []
+        self.id = id                    #game id from server
+        self.players = []               #current player in game
+        self.ready = False              #True means game is ready to play (there are 4 players in game)
+        #0 means not start yet, 1 means start round 1, 2 - 3 means trade card between roles, 4 means start round 2 and 5 means game end
+        self.state = 0
+        self.first = True               #True means this is the first turn of the game
+        self.turn = 0                   #which turn of player (1 - 4)
+        self.loop = 0                   #direction of the turn, 0 means anti clockwise and 1 means clockwise
+        self.currentCard = []           #current card in playing of each turn
+        self.p1hand = []                #player 1's hand
+        self.p2hand = []                #player 2's hand
+        self.p3hand = []                #player 3's hand
+        self.p4hand = []                #player 4's hand
+        self.inplay = [1, 2, 3, 4]      #player that is not pass yet
+        self.inround = [1, 2, 3, 4]     #player that is not win yet
+        self.keepLoop = False           #flag for checking reverse loop, True means there is player who finished previous turn
+        self.win1 = []                  #order of player that win in round 1, role by index = [King, Queen, People, Slave]
+        self.win2 = []                  #order of player that win in round 2
+        self.score = [0, 0, 0, 0]       #score of each player from 1 - 4
 
+    #update state of the game
+    def updateState(self):
+        self.state += 1
+
+        #start round 1
+        if self.state == 1:
+            print("Game state: ", self.state)
+            print("Start round 1!")
+
+            dealCards(self)                 #deal card for round 1
+            self.findFirstPlayer()          #find first player of round 1
+
+            #self.testGame()
+            #print("test game remove 10 cards form each player hand!")
+
+        #prepare to start round 2, King have to send any 2 cards to slave
+        elif self.state == 2:
+            print("Round 1 score: ", self.win1)
+            print("Round 1 end ;w;")
+            print("Game state: ", self.state)
+            print("Prepare to start round 2...")
+
+            #reset parameters for round 2
+            self.inplay = [1, 2, 3, 4]
+            self.inround = [1, 2, 3, 4]
+
+            dealCards(self)                 #deal card again for round 2
+
+            print("Slave send their 2 highest card to King")
+            print("King have to send any 2 cards to Slave")
+            self.turn = self.win1[0]
+
+        #after king sent cards, Queen have to send any card to people
+        elif self.state == 3:
+            print("Game state: ", self.state)
+            print("People send their highest card to Queen")
+            print("Queen have to send any card to People")
+            self.turn = self.win1[1]
+
+        #start round 2
+        elif self.state == 4:
+            print("Game state: ", self.state)
+            print("Start round 2!!")
+
+            self.findFirstPlayer()          #find first player of round 2
+
+            #self.testGame()
+            #print("test game remove 10 cards form each player hand!")
+
+        #end game
+        elif self.state == 5:
+            print("Game state: ", self.state)
+            print("Game end!!")
+            print("Win in round 1", self.win1)
+            print("Win in round 2", self.win2)
+
+            #calculate score
+            point = 2
+            for player in self.win1:
+                if point == 0:
+                    point -= 1
+                self.score[player - 1] += point
+                point -= 1
+            
+            point = 2
+            #if there is an overthrow, King got 0 point
+            if self.win1[0] != self.win2[0]:
+                for player in self.win2:
+                    if point == 0:
+                        point -= 1
+                    if player == self.win1[0]:
+                        self.score[player - 1] = 0
+                    else:
+                        self.score[player - 1] += point
+                        point -= 1
+            #if not, calculate normally
+            else:
+                for player in self.win2:
+                    if point == 0:
+                        point -= 1
+                    self.score[player - 1] += point
+                    point -= 1
+
+            #show leaderboard
+            print("Score of each player: ", self.score)
+
+        else:
+            print("Game state: ", self.state)
+            print("Game end!!!")
+
+    #all player drow form deck
     def drow(self, deck):
         self.p1hand.append(deck.deal())
         self.p2hand.append(deck.deal())
         self.p3hand.append(deck.deal())
         self.p4hand.append(deck.deal())
 
+    #sort hand of all player
     def sortHand(self):
         self.p1hand.sort()
         self.p2hand.sort()
         self.p3hand.sort()
         self.p4hand.sort()
 
+    #return that player's hand when called
     def findPlayerHand(self, player):
         if player == 1:
             return self.p1hand
@@ -43,18 +139,46 @@ class Game:
         print("Can't find player: ", player)
         return None
 
+    #find first player of the game
     def findFirstPlayer(self):
-        if self.p1hand[0].rank == 1:
-            self.turn = 1
-        elif self.p2hand[0].rank == 1:
-            self.turn = 2
-        elif self.p3hand[0].rank == 1:
-            self.turn = 3
-        elif self.p4hand[0].rank == 1:
-            self.turn = 4
-        else:
-            print("Can't find three of clubs.")
 
+        #player who has Three of Clubs play first turn of round 1
+        if self.state == 1:
+            if self.p1hand[0].rank == 1:
+                self.turn = 1
+            elif self.p2hand[0].rank == 1:
+                self.turn = 2
+            elif self.p3hand[0].rank == 1:
+                self.turn = 3
+            elif self.p4hand[0].rank == 1:
+                self.turn = 4
+            else:
+                print("Can't find three of clubs.")
+
+        #Slave play first turn of round 2 and reset loop
+        elif self.state == 4:
+            slave = self.win1[3]
+            king = self.win1[0]
+            queen = self.win1[1]
+
+            #if Slave's left player is King, loop anti-clockwise from slave
+            #and if Slave's opposite player is King and Queen is on the left, loop anti-clockwise from slave
+            #otherwise loop clockwise from slave
+            if slave == 1:
+                if king == 4:
+                    self.loop = 0
+                elif king == 3 and queen == 4:
+                    self.loop = 0
+            elif slave - king == 1:
+                self.loop = 0
+            elif abs(slave - king) == 2 and slave - queen == 1:
+                self.loop = 0
+            else:
+                self.loop = 1
+
+            self.turn = slave
+
+    #all in one take a turn function
     def updateTurn(self, playCard, player):
         self.moveTurn(player)
 
@@ -68,6 +192,7 @@ class Game:
             for card in playCard:
                 self.findPlayerHand(player).remove(card)
             self.currentCard = playCard
+
             #if player play after another player win, set keepLoop to False (means not reverse loop)
             if self.keepLoop:
                 self.keepLoop = False
@@ -75,11 +200,15 @@ class Game:
                 if len(self.inplay) == 1:
                     self.currentCard.clear()
                     self.inplay = self.inround.copy()
+                    #move turn again in case that player is winning
+                    if not self.findPlayerHand(player):
+                        self.moveTurn(player)
             self.checkWin(player)                       #check if the player win this turn
 
         #if player pass
         else:
             self.inplay.remove(player)                  #remove that player from inplay
+
             #check if player pass after another player win
             if self.keepLoop:
                 #if all players pass after another player win, reverse loop
@@ -91,14 +220,14 @@ class Game:
                     self.keepLoop = False               #set keepLoop to False again
                     self.currentCard.clear()            #clear current card in play
                     self.inplay = self.inround.copy()   #reset player inplay
-                    self.moveTurn(player)
+                    self.turn = player                  #the player who pass before reverse loop play again
                     print("Reverse loop to: ", self.loop)
 
             #if player pass normally
             else:
                 #if there is only one play inplay left
                 if len(self.inplay) == 1:
-                    self.turn = self.inplay[0]    #make him plays first next turn
+                    self.turn = self.inplay[0]          #make him plays first next turn by move to his turn
                     self.currentCard.clear()            #clear current card in play
                     self.inplay = self.inround.copy()   #reset player inplay
 
@@ -107,6 +236,7 @@ class Game:
         print("Remaining player in play: ", self.inplay)
         print("Remaining player in round: ", self.inround)
 
+    #move turn by current direction of loop
     def moveTurn(self, player):
         turn = self.inplay.index(player)
         #check loop (0 means anti-clockwise, 1 means clockwise)
@@ -123,23 +253,91 @@ class Game:
             else:
                 self.turn = self.inplay[turn - 1]
 
+    #check if player win by checking their hand
     def checkWin(self, player):
+        #if player has no card left in hand that means he win
         if not self.findPlayerHand(player):
-            self.inplay.remove(player)
-            self.inround.remove(player)
-            self.win1.append(player)
-            if len(self.inround) == 1:
-                self.win1.append(self.inround[0])
-                self.findPlayerHand(self.inround[0]).clear()
-                self.currentCard.clear()
-                self.startNewRound()
-            else:
-                self.keepLoop = True
+            self.inplay.remove(player)          #remove him from inplay
+            self.inround.remove(player)         #remove him from inround
 
-    def startNewRound(self):
-        print("Round 1 score: ", self.win1)
-        print("Start new round!!!")
-        dealCards(self)
+            #if in round 1
+            if self.state == 1:
+                self.win1.append(player)                                #move him to winning list of round 1
+                #if there is last player who is not win yet, end round
+                if len(self.inround) == 1:
+                    self.win1.append(self.inround[0])                   #move him to winning list of round 1 (the last guy ;w;)
+                    self.findPlayerHand(self.inround[0]).clear()        #reset his hand since he is the last one that has card left in hand
+                    self.currentCard.clear()                            #reset current card in paly
+                    self.updateState()                                  #start 2 round!
+                #if round is not end yet, raise the keepLoop flag to check reverse loop condition
+                else:
+                    self.keepLoop = True                                #raise flag to check reverse loop
+
+            #if in round 2
+            if self.state == 4:
+                #if it is the first win in round 2
+                if not self.win2:
+                    self.win2.append(player)                            #move him to winning list of round 1
+                    #if player who win first isn't King that mean it is an overthrow (means King is auto lose)
+                    if player != self.win1[0]:
+                        self.inplay.remove(self.win1[0])                #remove King from play
+                        self.inround.remove(self.win1[0])               #remove King from round
+                        self.win2.append(self.win1[0])                  #move King to winning list of round 2 (although he lose)
+                        self.findPlayerHand(self.win1[0]).clear()       #reset King's hand
+                #if there is last player who is not win yet, end game
+                elif len(self.inround) == 1:
+                    self.win2.append(player)                            #move him to winning list of round 2
+                    self.win2.append(self.inround[0])                   #move him to winning list of round 2 (the last guy ;w;)
+                    self.findPlayerHand(self.inround[0]).clear()        #reset his hand since he is the last one that has card left in hand
+                    self.currentCard.clear()                            #reset current card in paly
+                    self.updateState()                                  #end game!
+                #if round is not end yet, raise the keepLoop flag to check reverse loop condition   
+                else:
+                    self.win2.append(player)                            #move him to winning list of round 2
+                    self.keepLoop = True                                #raise flag to check reverse loop
+
+    #trade card between players before start round 2
+    def tradeCard(self, sendCard):
+        print("Trade card...")
+
+        if self.state == 2:
+            slave = self.win1[3]
+            king = self.win1[0]
+            
+            #Slave send their 2 highest card to King
+            self.findPlayerHand(king).append(self.findPlayerHand(slave).pop(-1))
+            self.findPlayerHand(king).append(self.findPlayerHand(slave).pop(-1))
+
+            #King have to send any 2 cards to Slave
+            for card in sendCard:
+                self.findPlayerHand(king).remove(card)
+                self.findPlayerHand(slave).append(card)
+
+            self.sortHand()
+            self.updateState()
+
+        elif self.state == 3:
+            people = self.win1[2]
+            queen = self.win1[1]
+            
+            #Slave send their highest card to King
+            self.findPlayerHand(queen).append(self.findPlayerHand(people).pop(-1))
+
+            #King have to send any cards to Slave
+            for card in sendCard:
+                self.findPlayerHand(queen).remove(card)
+                self.findPlayerHand(people).append(card)
+
+            self.sortHand()
+            self.updateState()
+
+    #remove card for testing game only
+    #def testGame(self):
+        #for index in range(10):
+            #self.p1hand.pop()
+            #self.p2hand.pop()
+            #self.p3hand.pop()
+            #self.p4hand.pop()
 
 class Card( object ):
     def __init__(self, value, suit, rank):
@@ -184,7 +382,6 @@ def dealCards(game):
     while deck:                     #each player draw card until deck is empty
         game.drow(deck)
     game.sortHand()                 #sort hand for each player
-    game.findFirstPlayer()          #find first player turn
 
 #find position of each player
 def findPos(player):
