@@ -68,3 +68,8 @@ Nov 30, 2021
 Dec 2, 2021
   - Game are now complete, all important feature are working now
   - Fix a lot of minor bug
+
+Dec 6, 2021
+  - Add game menu, rules and leaderboard
+  - Fix some minor bug
+  - This (maybe) is the last update!
