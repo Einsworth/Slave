@@ -1,6 +1,9 @@
 # Slave
 Final project of CPE327 (Software Engineering).
 
+# Description
+Slave is inspired by Slave In Wonderland, using Pygame to develop. it's a turn based 4 players card game, using socket server to play together,  where you have to play card until your hands is empty to win!
+
 # Version
 Oct 27, 2021
   - Just start working
