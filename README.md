@@ -5,7 +5,7 @@ Final project of CPE327 (Software Engineering).
 Slave is inspired by Slave In Wonderland, using Pygame to develop. it's a turn based 4 players card game, using socket server to play together,  where you have to play card until your hands is empty to win!
 
 # Note
-You have to open server by running server.py script in order to start playing. If client can't connect to the server, the game won't start even if you click start button. The IP in the script and exe file is my IPV4, if you want to play with your IP you must run both server.py and client.py scripts with the your IP. IP in server.py and network.py scripts must be match in order to connect togheter. If you just want to play with your friends, I suggest to use LAN to have same IP, but if you want to open public server, you must port forward your IP.
+You have to open server by running server.py script in order to start playing. If client can't connect to the server, the game won't start even if you click start button. The IP in the script and exe file is my IPV4, if you want to play with your IP, you must run both server.py and client.py scripts with the your IP. IP in server.py and network.py scripts must be match in order to connect togheter. If you just want to play with your friends, I suggest to use LAN to have same IP, but if you want to open public server, you must port forward your IP.
 
 # Version
 Oct 27, 2021
