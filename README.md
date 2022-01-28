@@ -7,6 +7,26 @@ Slave is inspired by Slave In Wonderland, using Pygame to develop. it's a turn b
 # Note
 You have to open server by running server.py script in order to start playing. If client can't connect to the server, the game won't start even if you click start button. The IP in the script and exe file is my IPV4, if you want to play with your IP, you must run both server.py and client.py scripts with the your IP. IP in server.py and network.py scripts must be match in order to connect togheter. If you just want to play with your friends, I suggest to use LAN to have same IP, but if you want to open public server, you must port forward your IP.
 
+# Game preview
+
+Menu Screen
+![image](https://user-images.githubusercontent.com/90752003/151509551-20fbfa95-d41a-4d83-b2d1-2c1f349b880c.png)
+
+Waiting Screen
+![image](https://user-images.githubusercontent.com/90752003/151509615-3dfecfbd-e9a0-45cb-86a7-78f34f13f930.png)
+
+Gamplay Screen
+![image](https://user-images.githubusercontent.com/90752003/151509669-a4b3e0e9-7cee-4701-85b0-be617861d238.png)
+![image](https://user-images.githubusercontent.com/90752003/151509797-cc3d6dc3-1549-4f25-baf2-13122879cbae.png)
+![image](https://user-images.githubusercontent.com/90752003/151509857-8a71e270-1125-4172-8232-29839e502a4f.png)
+![image](https://user-images.githubusercontent.com/90752003/151509884-ed0a0540-b5b9-4b4f-8254-2468863106c3.png)
+
+Result Screem
+![image](https://user-images.githubusercontent.com/90752003/151509951-2fd4f9cd-302d-4cf4-8479-aa490775dc73.png)
+
+
+
+
 # Version
 Oct 27, 2021
   - Just start working
